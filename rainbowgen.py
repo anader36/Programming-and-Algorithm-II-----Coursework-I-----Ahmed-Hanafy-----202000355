@@ -38,7 +38,7 @@ for i in range(len(passwords)):
 # Print the rainbow table
 print("Rainbow table:")
 print("{:<34} {:<10}".format("Hash", "Password"))
-print("-" * 40)
+print("-" * 46)
 def print_tree(root):
     if root:
         print_tree(root.left)
