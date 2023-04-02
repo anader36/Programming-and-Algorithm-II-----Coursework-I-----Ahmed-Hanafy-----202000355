@@ -21,37 +21,15 @@ def insert(root, key, value):
         root.value = value
     return root
 
-# Define a function to reduce a hash to a password
-def reduce(hash_value, iteration):
-    password = str(int(hash_value[:8], 16) + iteration)
-    return hashlib.md5(password.encode('utf-8')).hexdigest()
+# Define a function for the reduction step
+def reduce_hash(hash_val, iteration_num):
+    first_eight_chars = hash_val[:8]
+    int_val = int(first_eight_chars, 16) + iteration_num
+    new_hash_val = hashlib.md5(str(int_val).encode('utf-8')).hexdigest()
+    return new_hash_val
 
-# Define a function to generate a chain of hashes
-def generate_chain(start_password, chain_length):
-    hash_value = hashlib.md5(start_password.encode('utf-8')).hexdigest()
-    for i in range(chain_length):
-        password = reduce(hash_value, i)
-        hash_value = hashlib.md5(password.encode('utf-8')).hexdigest()
-    return hash_value
-
-# Define a function to search for a hash in the rainbow table
-def search(root, hash_value, chain_length):
-    for i in range(chain_length):
-        password = reduce(hash_value, i)
-        hash_value = hashlib.md5(password.encode('utf-8')).hexdigest()
-        node = find(root, hash_value)
-        if node is not None:
-            return node.value
-    return None
-
-# Define a function to find a node in the binary tree
-def find(root, key):
-    if root is None or root.key == key:
-        return root
-    if key < root.key:
-        return find(root.left, key)
-    else:
-        return find(root.right, key)
+# Define the chain length
+chain_length = 10
 
 # Generate random passwords and hash them using MD5
 passwords = []
@@ -62,31 +40,44 @@ for i in range(1000):
 hashes = [hashlib.md5(password.encode('utf-8')).hexdigest() for password in passwords]
 print("Hashing passwords...")
 
-# Create a binary tree with the passwords and hashes
+# Create a rainbow table with the passwords and hashes
 root = None
-chain_length = 1000
 for i in range(len(passwords)):
-    start_password = passwords[i]
-    end_hash = generate_chain(start_password, chain_length)
-    root = insert(root, end_hash, start_password)
+    password = passwords[i]
+    hash_val = hashes[i]
+    for j in range(chain_length):
+        new_password = reduce_hash(hash_val, j)
+        new_hash_val = hashlib.md5(new_password.encode('utf-8')).hexdigest()
+        hash_val = new_hash_val
+    root = insert(root, hash_val, password)
 
 # Print the rainbow table
 print("Rainbow table:")
-print("{:<34} {:<10}".format("Hash", "Password"))
+print("{:<10} {:<34}".format("Password", "Hash"))
 print("-" * 46)
 def print_tree(root):
     if root:
         print_tree(root.left)
-        print("{:<34} {:<10}".format(root.key, root.value))
+        print("{:<10} {:<34}".format(root.value, root.key))
         print_tree(root.right)
 print_tree(root)
 
-# Ask the user for an MD5 hash to crack
-hash_to_crack = input("Enter the MD5 hash to crack: ")
+# Ask the user to input an MD5 hash to crack
+hash_to_crack = input("Enter an MD5 hash to crack: ")
 
-# Search for the password corresponding to the hash
-password = search(root, hash_to_crack, chain_length)
-if password is None:
-    print("Unable to crack the password.")
+# Iterate through the chain to find the original password
+for i in range(chain_length):
+    reduced_hash = reduce_hash(hash_to_crack, i)
+    node = root
+    while node is not None:
+        if node.key == reduced_hash:
+            print("The original password is:", node.value)
+            break
+        elif node.key < reduced_hash:
+            node = node.right
+        else:
+            node = node.left
+    if node is not None:
+        break
 else:
-    print("The password corresponding to the hash is:", password)
+    print("Failed to crack the hash.")
