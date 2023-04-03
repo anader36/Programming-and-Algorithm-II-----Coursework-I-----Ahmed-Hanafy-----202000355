@@ -59,15 +59,50 @@ for i in range(len(passwords)):
     for j in range(chain_length):
         password = reduce(hash_value, j)
         hash_value = hashlib.md5(password.encode('utf-8')).hexdigest()
-    root = insert(root, hash_value, passwords[i])
+    root = insert(root, hash_value, password)
 
 # Print the rainbow table
 print("Rainbow table:")
-print("{:<10} {:<34} {:<10}".format("Password", "Hash", "Last value in the chain"))
+print("{:<10} {:<34} {:<10}".format("Password", "Last value in the chain", "Hash"))
 print("-" * 70)
 def print_tree(root):
     if root:
         print_tree(root.left)
-        print("{:<10} {:<34} {:<10}".format(root.value, root.key, reduce(root.key, chain_length-1)))
+        print("{:<10} {:<34} {:<10}".format(root.value, reduce(root.key, chain_length-1), root.key))
         print_tree(root.right)
 print_tree(root)
+
+# Define a function to search for the original password
+def search(hash_value):
+    # Reverse through the reduction function to find the password
+    password = None
+    for i in range(chain_length-1, -1, -1):
+        password = reduce(hash_value, i)
+        # Check if we've already computed this password before
+        if root is not None and find(root, hashlib.md5(password.encode('utf-8')).hexdigest()) is not None:
+            return (password, reduce(hash_value, chain_length-1))
+    return None
+
+# Define a function to find a node in the binary tree
+def find(root, key):
+    if root is None:
+        return None
+    if key < root.key:
+        return find(root.left, key)
+    elif key > root.key:
+        return find(root.right, key)
+    else:
+        return root
+
+# Ask the user for a hash value to search for
+hash_value = input("Enter a hash value to search for: ")
+
+# Search for the original password
+result = search(hash_value)
+
+# Print the result for the user
+if result is not None:
+    print("Password:", result[0])
+    print("Last value in the chain:", result[1])
+else:
+    print("Password not found in the rainbow table.")
