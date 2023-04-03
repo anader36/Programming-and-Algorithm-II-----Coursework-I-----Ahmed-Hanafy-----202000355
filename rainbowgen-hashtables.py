@@ -2,25 +2,21 @@ import hashlib
 import random
 import string
 
-# Define a class for the nodes in the binary tree
-class Node:
-    def __init__(self, key, value=None):
-        self.key = key
-        self.value = value
-        self.left = None
-        self.right = None
+# Define a hash table class
+class HashTable:
+    def __init__(self):
+        self.table = {}
 
-# Define a function to insert a node into the binary tree
-def insert(root, key, value):
-    if root is None:
-        return Node(key, value)
-    if key < root.key:
-        root.left = insert(root.left, key, value)
-    elif key > root.key:
-        root.right = insert(root.right, key, value)
-    else:
-        root.value = value
-    return root
+    # Define a method to insert a key-value pair into the hash table
+    def insert(self, key, value):
+        self.table[key] = value
+
+    # Define a method to get a value from the hash table given a key
+    def get(self, key):
+        if key in self.table:
+            return self.table[key]
+        else:
+            return None
 
 # Generate random passwords and hash them using MD5
 passwords = []
@@ -49,28 +45,24 @@ def reduce(hash_string: str, iteration: int, alphabet=None, word_length: int = 6
     # Generating word from calculated symbols list.
     return "".join(result)
 
-chain_length = 1000
+chain_length = 1001
 
-# Create a binary tree with the passwords and hashes
-root = None
+# Create a hash table with the passwords and hashes
+hash_table = HashTable()
 for i in range(len(passwords)):
     hash_value = hashes[i]
     password = passwords[i]
     for j in range(chain_length):
         password = reduce(hash_value, j)
         hash_value = hashlib.md5(password.encode('utf-8')).hexdigest()
-    root = insert(root, hash_value, password)
+    hash_table.insert(hash_value, password)
 
 # Print the rainbow table
 print("Rainbow table:")
 print("{:<10} {:<34} {:<10}".format("Password", "Last value in the chain", "Hash"))
 print("-" * 70)
-def print_tree(root):
-    if root:
-        print_tree(root.left)
-        print("{:<10} {:<34} {:<10}".format(root.value, reduce(root.key, chain_length-1), root.key))
-        print_tree(root.right)
-print_tree(root)
+for key, value in hash_table.table.items():
+    print("{:<10} {:<34} {:<10}".format(value, reduce(key, chain_length - 1), key))
 
 # Define a function to search for the original password
 def search(hash_value):
@@ -79,30 +71,25 @@ def search(hash_value):
     for i in range(chain_length-1, -1, -1):
         password = reduce(hash_value, i)
         # Check if we've already computed this password before
-        if root is not None and find(root, hashlib.md5(password.encode('utf-8')).hexdigest()) is not None:
+        if hash_table.get(hashlib.md5(password.encode('utf-8')).hexdigest()) is not None:
             return (password, reduce(hash_value, chain_length-1))
     return None
 
-# Define a function to find a node in the binary tree
-def find(root, key):
-    if root is None:
-        return None
-    if key < root.key:
-        return find(root.left, key)
-    elif key > root.key:
-        return find(root.right, key)
-    else:
-        return root
-
 # Ask the user for a hash value to search for
-hash_value = input("Enter a hash value to search for: ")
+while True:
+    hash_value = input("Enter a hash value to search for (or 'quit' to exit): ")
+    if hash_value == 'quit':
+        break
+    elif len(hash_value) != 32:
+        print("Invalid hash value. Hash value must be a 32-character hexadecimal string.")
+        continue
+    else:
+        # Search for the original password
+        result = search(hash_value)
 
-# Search for the original password
-result = search(hash_value)
-
-# Print the result for the user
-if result is not None:
-    print("Password:", result[0])
-    print("Last value in the chain:", result[1])
-else:
-    print("Password not found in the rainbow table.")
+        # Print the result for the user
+        if result is not None:
+            print("Password:", result[0])
+            print("Last value in the chain:", result[1])
+        else:
+            print("Password not found in the rainbow table.")
