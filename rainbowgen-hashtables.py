@@ -45,7 +45,7 @@ def reduce(hash_string: str, iteration: int, alphabet=None, word_length: int = 6
     # Generating word from calculated symbols list.
     return "".join(result)
 
-chain_length = 1001
+chain_length = 10000
 
 # Create a hash table with the passwords and hashes
 hash_table = HashTable()

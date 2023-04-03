@@ -32,7 +32,7 @@ hashes = [hashlib.md5(password.encode('utf-8')).hexdigest() for password in pass
 print("Hashing passwords...")
 
 # Define the reduction function and chain length
-def reduce(hash_string: str, iteration: int, alphabet=None, word_length: int = 6) -> str:
+def reduce(hash_string: str, iteration: int, alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", word_length: int = 6) -> str:
     if alphabet is None:
         alphabet = list(string.ascii_letters)
 
@@ -49,7 +49,7 @@ def reduce(hash_string: str, iteration: int, alphabet=None, word_length: int = 6
     # Generating word from calculated symbols list.
     return "".join(result)
 
-chain_length = 1001
+chain_length = 10000
 
 # Create a binary tree with the passwords and hashes
 root = None
@@ -72,54 +72,20 @@ def print_tree(root):
         print_tree(root.right)
 print_tree(root)
 
-# Define a function to search for the original password
-def search(hash_value):
-    # Reverse through the reduction function to find the password
-    password = None
-    for i in range(chain_length-1, -1, -1):
-        password = reduce(hash_value, i)
-        # Check if we've already computed this password before
-        if root is not None and find(root, hashlib.md5(password.encode('utf-8')).hexdigest()) is not None:
-            return (password, reduce(hash_value, chain_length-1))
-    return None
-
-# Define a function to find a node in the binary tree
-def find(root, key):
-    if root is None:
-        return None
-    if key < root.key:
-        return find(root.left, key)
-    elif key > root.key:
-        return find(root.right, key)
-    else:
-        return root
-
-# Define a function to search for the original password
-def search(hash_value):
-    # Reverse through the reduction function to find the password
-    password = None
-    for i in range(chain_length-1, -1, -1):
-        password = reduce(hash_value, i)
-        # Check if we've already computed this password before
-        if root is not None and find(root, hashlib.md5(password.encode('utf-8')).hexdigest()) is not None:
-            return (password, reduce(hash_value, chain_length-1))
-    return None
-
-# Ask the user for a hash value to search for
-while True:
-    hash_value = input("Enter a hash value to search for (or 'quit' to exit): ")
-    if hash_value == 'quit':
-        break
-    elif len(hash_value) != 32:
-        print("Invalid hash value. Hash value must be a 32-character hexadecimal string.")
-        continue
-    else:
-        # Search for the original password
-        result = search(hash_value)
-
-        # Print the result for the user
-        if result is not None:
-            print("Password:", result[0])
-            print("Last value in the chain:", result[1])
+def binary_search(root, hash_to_find):
+    current_node = root
+    while current_node is not None:
+        if current_node.key == hash_to_find:
+            return current_node.value
+        elif current_node.key < hash_to_find:
+            current_node = current_node.right
         else:
-            print("Password not found in the rainbow table.")
+            current_node = current_node.left
+    return None
+
+hash_to_find = input("Enter the hash to find: ")
+password = binary_search(root, hash_to_find)
+if password is None:
+    print("Hash not found in rainbow table.")
+else:
+    print("Password for hash {}: {}".format(hash_to_find, password))
