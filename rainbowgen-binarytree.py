@@ -88,4 +88,5 @@ password = binary_search(root, hash_to_find)
 if password is None:
     print("Hash not found in rainbow table.")
 else:
-    print("Password for hash {}: {}".format(hash_to_find, password))
+    last_value = reduce(hash_to_find, chain_length - 1)
+    print("The Original Password for this hash is '{}': {} -- followed by the last chain value: {}".format(hash_to_find, password, last_value))
