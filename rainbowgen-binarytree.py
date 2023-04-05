@@ -26,15 +26,15 @@ def insert(root, key, value):
 passwords = []
 print("Generating passwords...")
 for i in range(1000):
-    password = ''.join(random.choices(list('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), k=6))
+    password = ''.join(random.choices(string.ascii_letters + string.digits + string.punctuation, k=6))
     passwords.append(password)
 hashes = [hashlib.md5(password.encode('utf-8')).hexdigest() for password in passwords]
 print("Hashing passwords...")
 
 # Define the reduction function and chain length
-def reduce(hash_string: str, iteration: int, alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", word_length: int = 6) -> str:
+def reduce(hash_string: str, iteration: int, alphabet= string.ascii_letters + string.digits + string.punctuation, word_length: int = 6) -> str:
     if alphabet is None:
-        alphabet = list(string.ascii_letters)
+        alphabet = list(string.ascii_letters + string.digits + string.punctuation)
 
     # Shifting input hash value by iteration and modulo by 2^40.
     value = (int(hash_string, 16) + iteration) % (2 ** 40)
@@ -83,10 +83,10 @@ def binary_search(root, hash_to_find):
             current_node = current_node.left
     return None
 
-hash_to_find = input("Enter the hash to find: ")
+hash_to_find = input("Please enter the hash to find the original password: ")
 password = binary_search(root, hash_to_find)
 if password is None:
-    print("Hash not found in rainbow table.")
+    print("Hash is not found in the rainbow table.")
 else:
     last_value = reduce(hash_to_find, chain_length - 1)
     print("The Original Password for this hash is '{}': {} -- followed by the last chain value: {}".format(hash_to_find, password, last_value))

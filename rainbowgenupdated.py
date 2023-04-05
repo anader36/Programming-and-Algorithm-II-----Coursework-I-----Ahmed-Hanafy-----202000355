@@ -32,7 +32,7 @@ hashes = [hashlib.md5(password.encode('utf-8')).hexdigest() for password in pass
 print("Hashing passwords...")
 
 # Define the reduction function and chain length
-def reduce(hash_string: str, iteration: int, alphabet=None, word_length: int = 6) -> str:
+def reduce(hash_string: str, iteration: int, alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", word_length: int = 6) -> str:
     if alphabet is None:
         alphabet = list(string.ascii_letters)
 
@@ -49,7 +49,7 @@ def reduce(hash_string: str, iteration: int, alphabet=None, word_length: int = 6
     # Generating word from calculated symbols list.
     return "".join(result)
 
-chain_length = 1001
+chain_length = 10000
 
 # Create a binary tree with the passwords and hashes
 root = None
@@ -71,3 +71,22 @@ def print_tree(root):
         print("{:<10} {:<34} {:<10}".format(root.value, reduce(root.key, chain_length - 1), root.key))
         print_tree(root.right)
 print_tree(root)
+
+def binary_search(root, hash_to_find):
+    current_node = root
+    while current_node is not None:
+        if current_node.key == hash_to_find:
+            return current_node.value
+        elif current_node.key < hash_to_find:
+            current_node = current_node.right
+        else:
+            current_node = current_node.left
+    return None
+
+hash_to_find = input("Enter the hash to find: ")
+password = binary_search(root, hash_to_find)
+if password is None:
+    print("Hash not found in rainbow table.")
+else:
+    last_value = reduce(hash_to_find, chain_length - 1)
+    print("The Original Password for this hash is '{}': {} -- followed by the last chain value: {}".format(hash_to_find, password, last_value))
