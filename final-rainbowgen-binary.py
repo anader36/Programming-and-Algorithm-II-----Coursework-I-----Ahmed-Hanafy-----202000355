@@ -27,28 +27,33 @@ print("Choose a hashing algorithm from the following:")
 print("1. MD5")
 print("2. SHA1")
 print("3. SHA256")
-choice = input("Please enter your choice: ")
-if choice == '1':
-    algorithm = hashlib.md5
-elif choice == '2':
-    algorithm = hashlib.sha1
-elif choice == '3':
-    algorithm = hashlib.sha256
-else:
-    print("Invalid choice.")
-    exit()
+
+# Keep asking the user for a valid choice
+while True:
+    choice = input("Please enter your choice of the hashing algorithm: ")
+    if choice == '1':
+        algorithm = hashlib.md5
+        break
+    elif choice == '2':
+        algorithm = hashlib.sha1
+        break
+    elif choice == '3':
+        algorithm = hashlib.sha256
+        break
+    else:
+        print("Invalid choice. Please enter a valid choice (1, 2, or 3).")
 
 # Generate random passwords and hash them using the chosen algorithm
 passwords = []
 print("Generating passwords...")
 for i in range(1000):
-    password = ''.join(random.choices(string.ascii_letters + string.digits + string.punctuation, k=6))
+    password = ''.join(random.choices(string.ascii_letters + string.digits + string.punctuation, k=8))
     passwords.append(password)
 hashes = [algorithm(password.encode('utf-8')).hexdigest() for password in passwords]
 print("Hashing passwords...")
 
 # Define the reduction function and chain length
-def reduce(hash_string: str, iteration: int, alphabet= string.ascii_letters + string.digits + string.punctuation, word_length: int = 6) -> str:
+def reduce(hash_string: str, iteration: int, alphabet= string.ascii_letters + string.digits + string.punctuation, word_length: int = 8) -> str:
     if alphabet is None:
         alphabet = list(string.ascii_letters + string.digits + string.punctuation)
 
@@ -65,7 +70,7 @@ def reduce(hash_string: str, iteration: int, alphabet= string.ascii_letters + st
     # Generating word from calculated symbols list.
     return "".join(result)
 
-chain_length = 10000
+chain_length = 1000
 
 # Create a binary tree with the passwords and hashes
 root = None
