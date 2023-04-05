@@ -86,4 +86,4 @@ if password_node is None:
 else:
     password = password_node.value
     last_chain_value = reduce(hash_val_to_find, chain_length - 1)
-    print("The original password for this hash value is '{}': {} -- followed by the last chain value: {}".format(hash_val
+    print("The original password for this hash value is '{}': {} -- followed by the last chain value: {}".format(hash_val_to_find, password, last_chain_value))
