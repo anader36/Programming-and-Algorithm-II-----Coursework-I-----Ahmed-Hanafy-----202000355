@@ -22,13 +22,29 @@ def insert(root, key, value):
         root.value = value
     return root
 
-# Generate random passwords and hash them using MD5
+# Ask the user to choose a hashing algorithm from the following (MD5, SHA1, SHA256)
+print("Choose a hashing algorithm from the following:")
+print("1. MD5")
+print("2. SHA1")
+print("3. SHA256")
+choice = input("Please enter your choice: ")
+if choice == '1':
+    algorithm = hashlib.md5
+elif choice == '2':
+    algorithm = hashlib.sha1
+elif choice == '3':
+    algorithm = hashlib.sha256
+else:
+    print("Invalid choice.")
+    exit()
+
+# Generate random passwords and hash them using the chosen algorithm
 passwords = []
 print("Generating passwords...")
 for i in range(1000):
     password = ''.join(random.choices(string.ascii_letters + string.digits + string.punctuation, k=6))
     passwords.append(password)
-hashes = [hashlib.md5(password.encode('utf-8')).hexdigest() for password in passwords]
+hashes = [algorithm(password.encode('utf-8')).hexdigest() for password in passwords]
 print("Hashing passwords...")
 
 # Define the reduction function and chain length
@@ -58,7 +74,7 @@ for i in range(len(passwords)):
     password = passwords[i]
     for j in range(chain_length):
         password = reduce(hash_value, j)
-        hash_value = hashlib.md5(password.encode('utf-8')).hexdigest()
+        hash_value = algorithm(password.encode('utf-8')).hexdigest()
     root = insert(root, hash_value, password)
 
 # Print the rainbow table
