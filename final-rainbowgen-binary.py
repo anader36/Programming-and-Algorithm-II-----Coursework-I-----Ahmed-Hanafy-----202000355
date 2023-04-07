@@ -101,7 +101,7 @@ for i in range(len(passwords)):
 
 # Print the rainbow table
 print("Rainbow table:")
-print("{:<10} {:<34} {:<10}".format("Password", "Last value in the chain", "Hash"))
+print("{:<10} {:<34} {:<10}".format("Password", "Last value in the chain", "Hash Value"))
 print("-" * 70)
 def print_tree(root):
     if root:

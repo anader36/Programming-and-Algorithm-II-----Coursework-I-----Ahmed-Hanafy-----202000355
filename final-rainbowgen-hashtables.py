@@ -5,103 +5,83 @@ import hashlib
 import random
 import string
 
-# Defining a node class for the hash table
-class Node:
-    def __init__(self, key, value=None):
-        self.key = key  # The key to be stored
-        self.value = value  # The value to be stored
-
-# Function to insert data into the hash table
-def insert(table, key, value):
-    table[key] = Node(key, value)
-
-# Asking user to choose a hashing algorithm from the following options: MD5, SHA1, SHA256, SHA512.
-print("Choose a hashing algorithm from the following:")
-print("1. MD5")
-print("2. SHA1")
-print("3. SHA256")
-print("4. SHA512")
-
-# Continuously asking for user input until a valid choice is entered
-while True:
-    choice = input("Please enter your choice of the hashing algorithm: ")
-    if choice == '1':
-        algorithm = hashlib.md5
-        break
-    elif choice == '2':
-        algorithm = hashlib.sha1
-        break
-    elif choice == '3':
-        algorithm = hashlib.sha256
-        break
-    elif choice == '4':
-        algorithm = hashlib.sha512
-        break
-    else:
-        print("Invalid choice. Please enter a valid choice (1, 2, 3, or 4).")
-
-# Generating random passwords and hashing them using the chosen algorithm
+# Generate a list of 1000 random passwords
 passwords = []
 print("Generating passwords...")
 for i in range(100):
-    password = ''.join(random.choices(string.ascii_letters + string.digits + string.punctuation, k=8))
+    # Create a password by selecting 6 random characters from the combination of letters, digits, and punctuation
+    password = ''.join(random.choices(list(string.ascii_letters + string.digits + string.punctuation), k=6))
     passwords.append(password)
-hashes = [algorithm(password.encode('utf-8')).hexdigest() for password in passwords]
+
+# Create a dictionary of hash functions
+hash_funcs = {"1": hashlib.md5, "2": hashlib.sha1, "3": hashlib.sha256, "4": hashlib.sha512}
+
+# Prompt the user to select a hash function
+while True:
+    print("Select a hash function:")
+    print("1. MD5")
+    print("2. SHA-1")
+    print("3. SHA-256")
+    print("4. SHA-512")
+
+    hash_choice = input("Please enter your choice of the hashing algorithm: ")
+    hash_func = hash_funcs.get(hash_choice)
+
+    # If the user enters an invalid choice, prompt them to try again
+    if hash_func is None:
+        print("Invalid choice, try again. Please enter a valid choice (1, 2, 3, or 4).")
+    else:
+        break
+
+# Hash the passwords and create a rainbow table
 print("Hashing passwords...")
 
-# Define the reduction function and chain length
-# Parameters:
-#     hash_string (str): The input hash value.
-#     iteration (int): The number of times the reduction function is applied.
-#     alphabet (str): The alphabet used to generate the reduced values.
-#     word_length (int): The length of the reduced values.
-def reduce(hash_string: str, iteration: int, alphabet= string.ascii_letters + string.digits + string.punctuation, word_length: int = 8) -> str:
-    if alphabet is None:
-        alphabet = list(string.ascii_letters + string.digits + string.punctuation)
-
-    # Shifting input hash value by iteration and modulo by 2^40.
+# Define a function to reduce the hash values to passwords
+def reduce_hash(hash_string: str, iteration: int, alphabet: str = string.printable, word_length: int = 8) -> str:
+    # Reduce the hash value to a number and add the iteration count
     value = (int(hash_string, 16) + iteration) % (2 ** 40)
     result = []
+    # Convert the number to a password by selecting characters from the alphabet
     for i in range(word_length):
-        # Getting modulo by alphabet length. Result number will be between 0 and len(alphabet).
         mod = value % len(alphabet)
-        # Dividing value by alphabet length.
         value //= len(alphabet)
-        # Getting symbol from input alphabet by calculated value in range from 0 to len(alphabet).
         result.append(alphabet[mod])
-    # Generating word from calculated symbols list.
     return "".join(result)
 
-# Setting the chain length for the rainbow table
-chain_length = 100
+# Define the chain length
+chain_length = 10000
 
-# Creating the rainbow table 
+# Create a hash table to store the password-hash pairs
 hash_table = {}
 for i in range(len(passwords)):
+    # Hash the password using the selected hash function
     password = passwords[i]
-    hash_val = algorithm(password.encode('utf-8')).hexdigest()
+    hash_val = hash_func(password.encode('utf-8')).hexdigest()
+
+    # Generate the chain and add the last password-hash pair to the hash table
     for j in range(chain_length):
-        password = reduce(hash_val, j)
-        hash_val = algorithm(password.encode('utf-8')).hexdigest()
-    insert(hash_table, hash_val, password)
+        password = reduce_hash(hash_val, j)
+        hash_val = hash_func(password.encode('utf-8')).hexdigest()
+    hash_table[hash_val] = password
 
-# Printing the rainbow table to the console
+# Print the rainbow table
 print("Rainbow table:")
-print("{:<10} {:<34} {:<10}".format("Password", "Last value in the chain", "Hash"))
-print("-" * 70)
-for key in hash_table:
-    node = hash_table[key]
-    print("{:<10} {:<34} {:<10}".format(node.value, reduce(node.key, chain_length - 1), node.key))
+print("{:<20} {:<40} {:<50}".format("Password", "Last value in the chain", "Hash Value"))
+print("-" * 110)
 
-# Ask the user to enter a hash value to find the original password
-hash_val_to_find = input("Enter the hash value to find the original password: ")
-# Find the original password in the rainbow table and print it to the console
-password_node = hash_table.get(hash_val_to_find)
-# If the hash value is not found in the rainbow table, print a message to the console
-if password_node is None:
-    print("Hash value not found in the rainbow table.")
-# If the hash value is found in the rainbow table, print the original password and the last chain value to the console    
+for key in hash_table:
+    value = hash_table[key]
+    print("{:<20} {:<40} {:<50}".format(value, reduce_hash(key, chain_length - 1), key))
+
+print()
+
+# Prompt the user to enter a hash value to find the corresponding password
+hash_val_to_find = input("Please enter the hash to find the original password: ")
+
+# Search the rainbow table for the hash value and print the corresponding password
+password = hash_table.get(hash_val_to_find)
+if password is None:
+    print("Hash value is not found in the rainbow table.")
 else:
-    password = password_node.value
-    last_chain_value = reduce(hash_val_to_find, chain_length - 1)
+    last_chain_value = reduce_hash(hash_val_to_find, chain_length - 1)
     print("The original password for this hash value is '{}': {} -- followed by the last chain value: {}".format(hash_val_to_find, password, last_chain_value))
