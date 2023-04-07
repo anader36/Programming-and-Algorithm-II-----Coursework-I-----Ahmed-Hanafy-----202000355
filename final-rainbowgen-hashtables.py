@@ -5,11 +5,12 @@ import hashlib
 import random
 import string
 
-# Generate a list of 1000 random passwords
+# Generate a list of random passwords
 passwords = []
 print("Generating passwords...")
+# Generate 100 passwords
 for i in range(100):
-    # Create a password by selecting 6 random characters from the combination of letters, digits, and punctuation
+    # Create a password by selecting a number of random characters from the combination of letters, digits, and punctuation
     password = ''.join(random.choices(list(string.ascii_letters + string.digits + string.punctuation), k=6))
     passwords.append(password)
 
@@ -36,19 +37,27 @@ while True:
 # Hash the passwords and create a rainbow table
 print("Hashing passwords...")
 
-# Define a function to reduce the hash values to passwords
+# Define the reduction function, which is used to reduce the hash values to passwords and chain length
+# Parameters:
+#     hash_string (str): The input hash value.
+#     iteration (int): The number of times the reduction function is applied.
+#     alphabet (str): The alphabet used to generate the reduced values.
+#     word_length (int): The length of the reduced values.
 def reduce_hash(hash_string: str, iteration: int, alphabet: str = string.printable, word_length: int = 8) -> str:
     # Reduce the hash value to a number and add the iteration count
     value = (int(hash_string, 16) + iteration) % (2 ** 40)
     result = []
     # Convert the number to a password by selecting characters from the alphabet
     for i in range(word_length):
+    # Getting modulo by alphabet length. Result number will be between 0 and len(alphabet).
         mod = value % len(alphabet)
+    # Dividing value by alphabet length.
         value //= len(alphabet)
+    # Getting symbol from input alphabet by calculated value in range from 0 to len(alphabet).
         result.append(alphabet[mod])
     return "".join(result)
 
-# Define the chain length
+# Define the chain length for the rainbow table
 chain_length = 10000
 
 # Create a hash table to store the password-hash pairs
@@ -69,6 +78,7 @@ print("Rainbow table:")
 print("{:<20} {:<40} {:<50}".format("Password", "Last value in the chain", "Hash Value"))
 print("-" * 110)
 
+# Print the password-hash pairs in the hash table 
 for key in hash_table:
     value = hash_table[key]
     print("{:<20} {:<40} {:<50}".format(value, reduce_hash(key, chain_length - 1), key))
