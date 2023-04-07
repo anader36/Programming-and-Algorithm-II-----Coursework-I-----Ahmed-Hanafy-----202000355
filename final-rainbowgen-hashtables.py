@@ -9,7 +9,7 @@ import string
 passwords = []
 print("Generating passwords...")
 # Generate 100 passwords
-for i in range(100):
+for i in range(1000):
     # Create a password by selecting a number of random characters from the combination of letters, digits, and punctuation
     password = ''.join(random.choices(list(string.ascii_letters + string.digits + string.punctuation), k=6))
     passwords.append(password)
@@ -43,7 +43,7 @@ print("Hashing passwords...")
 #     iteration (int): The number of times the reduction function is applied.
 #     alphabet (str): The alphabet used to generate the reduced values.
 #     word_length (int): The length of the reduced values.
-def reduce_hash(hash_string: str, iteration: int, alphabet: str = string.printable, word_length: int = 8) -> str:
+def reduce_hash(hash_string: str, iteration: int, alphabet: str = string.printable, word_length: int = 6) -> str:
     # Reduce the hash value to a number and add the iteration count
     value = (int(hash_string, 16) + iteration) % (2 ** 40)
     result = []
