@@ -69,8 +69,11 @@ for i in range(len(passwords)):
 
     # Generate the chain and add the last password-hash pair to the hash table
     for j in range(chain_length):
+    # Reduce the hash value to a password
         password = reduce_hash(hash_val, j)
+    # Hash the password using the selected hash function
         hash_val = hash_func(password.encode('utf-8')).hexdigest()
+    # Add the password-hash pair to the hash table
     hash_table[hash_val] = password
 
 # Print the rainbow table
@@ -90,8 +93,10 @@ hash_val_to_find = input("Please enter the hash to find the original password: "
 
 # Search the rainbow table for the hash value and print the corresponding password
 password = hash_table.get(hash_val_to_find)
+# If the hash value is not found in the rainbow table, print a message
 if password is None:
     print("Hash value is not found in the rainbow table.")
 else:
+# If the hash value is found in the rainbow table, print the corresponding password and the last value in the chain
     last_chain_value = reduce_hash(hash_val_to_find, chain_length - 1)
     print("The original password for this hash value is '{}': {} -- followed by the last chain value: {}".format(hash_val_to_find, password, last_chain_value))
