@@ -1,5 +1,5 @@
 # Ahmed Nader Hussein - TKH ID: 202000355
-# Code Title: Final Project - Rainbow Table Generator - Binary Tree
+# Code Title: Final Project - Rainbow Table Generator - Binary Tree - Final Code
 #Time complexity of the code to search for a given hash value in the rainbow table and print the original password: O(log n)
 #Importing necessary libraries
 import hashlib
