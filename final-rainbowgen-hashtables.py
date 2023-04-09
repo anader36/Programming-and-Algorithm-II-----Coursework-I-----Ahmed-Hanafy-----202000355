@@ -6,6 +6,8 @@ import hashlib
 import random
 import string
 
+#Welcome message
+print("Welcome to the Rainbow Table Generator!")
 # Generate a list of random passwords
 passwords = []
 print("Generating passwords...")
