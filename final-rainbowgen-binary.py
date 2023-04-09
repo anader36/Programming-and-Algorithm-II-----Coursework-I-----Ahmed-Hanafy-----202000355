@@ -6,6 +6,9 @@ import hashlib
 import random
 import string
 
+#Welcome message
+print("Welcome to the Rainbow Table Generator!")
+
 # Define a class for the nodes in the binary tree
 class Node:
     def __init__(self, key, value=None):
