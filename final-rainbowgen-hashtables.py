@@ -1,5 +1,5 @@
 # Ahmed Nader Hussein - TKH ID: 202000355
-# Code Title: Final Project - Rainbow Table Generator - Hash Tables - Final Code to be submitted
+# Code Title: Final Project - Rainbow Table Generator - Hash Tables - Final Code
 #Time complexity of the code to search for a given hash value in the rainbow table and print the original password: O(1)
 #Importing necessary libraries
 import hashlib
@@ -12,7 +12,7 @@ print("Welcome to the Rainbow Table Generator!")
 passwords = []
 print("Generating passwords...")
 # Generate 100 passwords
-for i in range(1000):
+for i in range(100):
     # Create a password by selecting a number of random characters from the combination of letters, digits, and punctuation
     password = ''.join(random.choices(list(string.ascii_letters + string.digits + string.punctuation), k=6))
     passwords.append(password)
@@ -61,7 +61,7 @@ def reduce_hash(hash_string: str, iteration: int, alphabet: str = string.printab
     return "".join(result)
 
 # Define the chain length for the rainbow table
-chain_length = 10000
+chain_length = 1000
 
 # Create a hash table to store the password-hash pairs
 hash_table = {}
@@ -81,13 +81,13 @@ for i in range(len(passwords)):
 
 # Print the rainbow table
 print("Rainbow table:")
-print("{:<20} {:<40} {:<50}".format("Password", "Last value in the chain", "Hash Value"))
-print("-" * 110)
+print("{:<20} {:<30} {:<10}".format("Password", "Last value in the chain", "Hash Value"))
+print("-" * 70)
 
 # Print the password-hash pairs in the hash table 
 for key in hash_table:
     value = hash_table[key]
-    print("{:<20} {:<40} {:<50}".format(value, reduce_hash(key, chain_length - 1), key))
+    print("{:<20} {:<30} {:<50}".format(value, reduce_hash(key, chain_length - 1), key))
 
 print()
 
