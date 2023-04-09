@@ -1,5 +1,5 @@
 # Ahmed Nader Hussein - TKH ID: 202000355
-# Code Title: Final Project - Rainbow Table Generator - Binary Tree - Final Code
+# Code Title: Final Project - Rainbow Table Generator - Binary Tree - Final Code - Version 1.0
 #Time complexity of the code to search for a given hash value in the rainbow table and print the original password: O(log n)
 #Importing necessary libraries
 import hashlib
@@ -23,12 +23,16 @@ class Node:
 #     key (int): The key value for the new node.
 #     value (str): The value to be stored in the new node.
 def insert(root, key, value):
+# If the root is None, create a new node and return it
     if root is None:
         return Node(key, value)
+# If the key is less than the key in the root node, insert the new node in the left subtree and set it as the left child of the root node
     if key < root.key:
         root.left = insert(root.left, key, value)
+# If the key is greater than the key in the root node, insert the new node in the right subtree and set it as the right child of the root node
     elif key > root.key:
         root.right = insert(root.right, key, value)
+# If the key is equal to the key in the root node, update the value of the root node
     else:
         root.value = value
     return root
@@ -96,11 +100,14 @@ chain_length = 1000
 # Create a binary tree with the passwords and hashes
 root = None
 for i in range(len(passwords)):
+# Insert the hash value and the corresponding password into the binary tree
     hash_value = hashes[i]
     password = passwords[i]
+# Apply the reduction function to the hash value 'chain_length' of times
     for j in range(chain_length):
         password = reduce(hash_value, j)
         hash_value = algorithm(password.encode('utf-8')).hexdigest()
+# Insert the hash value and the corresponding password into the binary tree
     root = insert(root, hash_value, password)
 
 # Print the rainbow table
